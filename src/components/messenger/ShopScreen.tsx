@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
@@ -54,6 +53,7 @@ const ENOTIK_PACKS = [
 
 const ShopScreen = ({ balance, onUpdateBalance }: ShopScreenProps) => {
   const [selectedGift, setSelectedGift] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'gifts' | 'my-gifts' | 'buy-enotiks'>('gifts');
   const [myGifts, setMyGifts] = useState<any[]>([
     { id: 1, emoji: '🎁', name: 'Подарок', count: 2 },
     { id: 2, emoji: '🌹', name: 'Роза', count: 5 },
@@ -88,51 +88,62 @@ const ShopScreen = ({ balance, onUpdateBalance }: ShopScreenProps) => {
           </div>
         </div>
 
-        <Tabs defaultValue="gifts" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="gifts">
-              <Icon name="Gift" size={16} className="mr-2" />
-              Подарки
-            </TabsTrigger>
-            <TabsTrigger value="my-gifts">
-              <Icon name="Package" size={16} className="mr-2" />
-              Мои подарки ({myGifts.length})
-            </TabsTrigger>
-            <TabsTrigger value="buy-enotiks">
-              <Icon name="Coins" size={16} className="mr-2" />
-              Купить енотики
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex gap-2 mb-6">
+          <Button
+            variant={activeTab === 'gifts' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('gifts')}
+          >
+            <Icon name="Gift" size={16} className="mr-2" />
+            Подарки
+          </Button>
+          <Button
+            variant={activeTab === 'my-gifts' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('my-gifts')}
+          >
+            <Icon name="Package" size={16} className="mr-2" />
+            Мои подарки ({myGifts.length})
+          </Button>
+          <Button
+            variant={activeTab === 'buy-enotiks' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('buy-enotiks')}
+          >
+            <Icon name="Coins" size={16} className="mr-2" />
+            Купить енотики
+          </Button>
+        </div>
 
-          <TabsContent value="gifts" className="space-y-6">
-            {GIFT_CATEGORIES.map(category => (
-              <div key={category.id}>
-                <h3 className="text-xl font-semibold mb-4">{category.name}</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {category.items.map(gift => (
-                    <Card
-                      key={gift.id}
-                      className="p-4 hover:border-primary transition-all cursor-pointer hover-scale"
-                      onClick={() => setSelectedGift(gift)}
-                    >
-                      <div className="text-center">
-                        <div className="text-6xl mb-3">{gift.emoji}</div>
-                        <h4 className="font-semibold mb-1">{gift.name}</h4>
-                        <p className="text-sm text-muted-foreground mb-3">{gift.description}</p>
-                        <div className="flex items-center justify-center gap-1 text-primary font-bold">
-                          <span>🦝</span>
-                          <span>{gift.price}</span>
+        <ScrollArea className="h-[calc(100vh-280px)]">
+          {activeTab === 'gifts' && (
+            <div className="space-y-6">
+              {GIFT_CATEGORIES.map(category => (
+                <div key={category.id}>
+                  <h3 className="text-xl font-semibold mb-4">{category.name}</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {category.items.map(gift => (
+                      <Card
+                        key={gift.id}
+                        className="p-4 hover:border-primary transition-all cursor-pointer hover-scale"
+                        onClick={() => setSelectedGift(gift)}
+                      >
+                        <div className="text-center">
+                          <div className="text-6xl mb-3">{gift.emoji}</div>
+                          <h4 className="font-semibold mb-1">{gift.name}</h4>
+                          <p className="text-sm text-muted-foreground mb-3">{gift.description}</p>
+                          <div className="flex items-center justify-center gap-1 text-primary font-bold">
+                            <span>🦝</span>
+                            <span>{gift.price}</span>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </TabsContent>
+              ))}
+            </div>
+          )}
 
-          <TabsContent value="my-gifts">
-            <ScrollArea className="h-[600px]">
+          {activeTab === 'my-gifts' && (
+            <>
               {myGifts.length === 0 ? (
                 <div className="text-center py-16">
                   <Icon name="Package" size={64} className="mx-auto mb-4 opacity-20" />
@@ -167,56 +178,58 @@ const ShopScreen = ({ balance, onUpdateBalance }: ShopScreenProps) => {
                   ))}
                 </div>
               )}
-            </ScrollArea>
-          </TabsContent>
+            </>
+          )}
 
-          <TabsContent value="buy-enotiks" className="space-y-4">
-            <Card className="p-6 bg-gradient-to-br from-primary/10 to-purple-500/10 border-primary/20">
-              <h3 className="text-xl font-semibold mb-2">Что такое енотики?</h3>
-              <p className="text-muted-foreground">
-                Енотики 🦝 — это внутренняя валюта Speakly. Покупайте подарки и отправляйте их друзьям!
-              </p>
-            </Card>
+          {activeTab === 'buy-enotiks' && (
+            <div className="space-y-4">
+              <Card className="p-6 bg-gradient-to-br from-primary/10 to-purple-500/10 border-primary/20">
+                <h3 className="text-xl font-semibold mb-2">Что такое енотики?</h3>
+                <p className="text-muted-foreground">
+                  Енотики 🦝 — это внутренняя валюта Speakly. Покупайте подарки и отправляйте их друзьям!
+                </p>
+              </Card>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              {ENOTIK_PACKS.map(pack => (
-                <Card key={pack.id} className="p-6 hover:border-primary transition-all">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <p className="text-3xl font-bold">🦝 {pack.amount}</p>
-                      {pack.bonus > 0 && (
-                        <p className="text-sm text-green-500 font-medium">+{pack.bonus} бонус</p>
-                      )}
+              <div className="grid md:grid-cols-2 gap-4">
+                {ENOTIK_PACKS.map(pack => (
+                  <Card key={pack.id} className="p-6 hover:border-primary transition-all">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="text-3xl font-bold">🦝 {pack.amount}</p>
+                        {pack.bonus > 0 && (
+                          <p className="text-sm text-green-500 font-medium">+{pack.bonus} бонус</p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold">{pack.price} ₽</p>
+                        {pack.bonus > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            {((pack.bonus / pack.amount) * 100).toFixed(0)}% выгода
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold">{pack.price} ₽</p>
-                      {pack.bonus > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          {((pack.bonus / pack.amount) * 100).toFixed(0)}% выгода
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <Button className="w-full" onClick={() => handleBuyEnotiks(pack)}>
-                    <Icon name="ShoppingCart" size={18} className="mr-2" />
-                    Купить
-                  </Button>
-                </Card>
-              ))}
-            </div>
-
-            <Card className="p-6">
-              <h3 className="font-semibold mb-3">Способы оплаты</h3>
-              <div className="flex flex-wrap gap-3">
-                {['💳 Карта', '📱 SBP', '🏦 PayPal', '₿ Crypto'].map(method => (
-                  <Button key={method} variant="outline" size="sm">
-                    {method}
-                  </Button>
+                    <Button className="w-full" onClick={() => handleBuyEnotiks(pack)}>
+                      <Icon name="ShoppingCart" size={18} className="mr-2" />
+                      Купить
+                    </Button>
+                  </Card>
                 ))}
               </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
+
+              <Card className="p-6">
+                <h3 className="font-semibold mb-3">Способы оплаты</h3>
+                <div className="flex flex-wrap gap-3">
+                  {['💳 Карта', '📱 SBP', '🏦 PayPal', '₿ Crypto'].map(method => (
+                    <Button key={method} variant="outline" size="sm">
+                      {method}
+                    </Button>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          )}
+        </ScrollArea>
 
         <Dialog open={selectedGift !== null} onOpenChange={(open) => !open && setSelectedGift(null)}>
           <DialogContent>
