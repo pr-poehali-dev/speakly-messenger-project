@@ -1,13 +1,40 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import AuthScreen from '@/components/messenger/AuthScreen';
+import MainScreen from '@/components/messenger/MainScreen';
 
 const Index = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState({
+    name: 'Иван Петров',
+    phone: '+7 999 123-45-67',
+    avatar: '👤',
+    balance: 1250,
+    status: '🚀 В сети',
+  });
+
+  const handleAuth = (phone: string) => {
+    setUserData({ ...userData, phone });
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
+  const handleUpdateProfile = (data: Partial<typeof userData>) => {
+    setUserData({ ...userData, ...data });
+  };
+
+  if (!isAuthenticated) {
+    return <AuthScreen onAuth={handleAuth} />;
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
-    </div>
+    <MainScreen 
+      userData={userData} 
+      onLogout={handleLogout}
+      onUpdateProfile={handleUpdateProfile}
+    />
   );
 };
 
